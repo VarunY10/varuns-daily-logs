@@ -1,12 +1,17 @@
 // Grab the pieces of the page we need to work with
 const form = document.getElementById("task-form");
 const input = document.getElementById("task-input");
+const dueInput = document.getElementById("due-input");
 const list = document.getElementById("task-list");
 const counter = document.getElementById("counter");
 const toast = document.getElementById("toast");
 const clearDoneBtn = document.getElementById("clear-done");
 
-// Our tasks live here. Each task looks like: { text: "Buy milk", done: false }
+// Our tasks live here. Each task looks like:
+// { text: "Buy milk", done: false, due: "2026-10-05", addedAt: "...", doneAt: null }
+//   due     = the day it must be done by ("" if no due date)
+//   addedAt = the moment it was added   ("logged in")
+//   doneAt  = the moment it was ticked  ("logged out"), or null if not done yet
 // We load them from the browser's memory (localStorage) so they survive a refresh.
 let tasks = JSON.parse(localStorage.getItem("varun-dalle-tasks")) || [];
 
@@ -22,9 +27,35 @@ function showToast() {
   toast.classList.add("fly");
 }
 
+// Today's date as "YYYY-MM-DD" (the same shape the date picker uses)
+function todayString() {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${now.getFullYear()}-${month}-${day}`;
+}
+
+// A date → "12 Oct"
+function shortDay(date) {
+  return date.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+}
+
+// A due date from the picker, "2026-10-12" → "12 Oct"
+function formatDay(dateString) {
+  return shortDay(new Date(dateString + "T00:00"));
+}
+
+// A saved moment → "4 Oct, 7:59 PM"
+function formatMoment(isoString) {
+  const moment = new Date(isoString);
+  const time = moment.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+  return `${shortDay(moment)}, ${time}`;
+}
+
 // Draw all the tasks on the page
 function render() {
   list.innerHTML = ""; // wipe the list clean, then rebuild it
+  const today = todayString();
 
   tasks.forEach((task, index) => {
     const li = document.createElement("li");
@@ -36,14 +67,43 @@ function render() {
     checkbox.checked = task.done;
     checkbox.addEventListener("change", () => {
       task.done = checkbox.checked;
+      // Ticked → remember the time ("logged out"). Unticked → forget it.
+      task.doneAt = task.done ? new Date().toISOString() : null;
       if (task.done) showToast(); // only celebrate when ticking, not un-ticking
       save();
       render();
     });
 
-    // The task's words
+    // The task's words, with the small info line underneath
+    const body = document.createElement("div");
+    body.className = "task-body";
+
     const text = document.createElement("span");
+    text.className = "task-text";
     text.textContent = task.text;
+
+    const info = document.createElement("div");
+    info.className = "task-info";
+
+    if (task.due) {
+      const due = document.createElement("span");
+      due.textContent = `Due: ${formatDay(task.due)}`;
+      // Date has passed and the task isn't done yet → red
+      if (!task.done && task.due < today) due.className = "overdue";
+      info.append(due);
+    }
+    if (task.addedAt) {
+      const added = document.createElement("span");
+      added.textContent = `Added: ${formatMoment(task.addedAt)}`;
+      info.append(added);
+    }
+    if (task.doneAt) {
+      const finished = document.createElement("span");
+      finished.textContent = `Done: ${formatMoment(task.doneAt)}`;
+      info.append(finished);
+    }
+
+    body.append(text, info);
 
     // ✕ button: delete this task
     const del = document.createElement("button");
@@ -55,7 +115,7 @@ function render() {
       render();
     });
 
-    li.append(checkbox, text, del);
+    li.append(checkbox, body, del);
     list.appendChild(li);
   });
 
@@ -82,8 +142,15 @@ form.addEventListener("submit", (event) => {
   const text = input.value.trim();
   if (text === "") return; // ignore empty tasks
 
-  tasks.push({ text: text, done: false });
+  tasks.push({
+    text: text,
+    done: false,
+    due: dueInput.value, // "" if no date was picked
+    addedAt: new Date().toISOString(), // the exact moment it was added
+    doneAt: null,
+  });
   input.value = "";
+  dueInput.value = "";
   save();
   render();
 });

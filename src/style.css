@@ -20,7 +20,8 @@ body {
 /* The white box in the middle */
 .card {
   width: 100%;
-  max-width: 440px;
+  max-width: 520px; /* a bit wider, to fit the date picker */
+  box-sizing: border-box; /* count the padding INSIDE the width, so the card never spills off small screens */
   background: white;
   padding: 28px;
   border-radius: 16px;
@@ -37,16 +38,27 @@ h1 {
   color: #777;
 }
 
-/* Typing box and Add button side by side */
+/* Typing box, date picker and Add button side by side */
 #task-form {
   display: flex;
+  flex-wrap: wrap; /* on small phone screens, things move to a new line instead of squashing */
   gap: 8px;
 }
 
 #task-input {
   flex: 1;
+  min-width: 160px;
   padding: 10px 12px;
   font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+#due-input {
+  padding: 8px 10px;
+  font-size: 15px;
+  font-family: inherit;
+  color: #555;
   border: 1px solid #ccc;
   border-radius: 8px;
 }
@@ -80,14 +92,33 @@ button:hover {
   border-bottom: 1px solid #eee;
 }
 
-#task-list li span {
+/* The task's words + info line take up all the middle space */
+.task-body {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 /* A finished task gets a line through it */
-#task-list li.done span {
+#task-list li.done .task-text {
   text-decoration: line-through;
   color: #aaa;
+}
+
+/* The small grey line under each task: due date, added, done */
+.task-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  font-size: 12px;
+  color: #888;
+}
+
+/* Late tasks shout in red */
+.overdue {
+  color: #c33;
+  font-weight: bold;
 }
 
 /* The small ✕ delete button */
