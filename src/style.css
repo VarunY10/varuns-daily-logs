@@ -51,13 +51,13 @@ button {
   font-size: 16px;
   border: none;
   border-radius: 8px;
-  background: #4a6cf7;
+  background: #ec4899;
   color: white;
   cursor: pointer;
 }
 
 button:hover {
-  background: #3755d8;
+  background: #db2777;
 }
 
 /* The list of tasks */
