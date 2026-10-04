@@ -1,4 +1,4 @@
-/* The whole page: soft background, center everything */
+/* The whole page: football field photo, center everything */
 body {
   margin: 0;
   min-height: 100vh;
@@ -7,7 +7,12 @@ body {
   align-items: flex-start;
   padding: 60px 16px;
   box-sizing: border-box;
-  background: #eef1f7;
+  /* A see-through dark layer ON TOP of the photo, so the photo is calmer
+     and the white card stands out clearly */
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)),
+    url("assets/football-field.jpg") center / cover fixed;
+  background-color: #2d5a27; /* green fallback if the photo can't load */
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: #222;
 }
@@ -19,7 +24,7 @@ body {
   background: white;
   padding: 28px;
   border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35); /* stronger shadow so the card "floats" above the field */
 }
 
 h1 {
@@ -100,4 +105,15 @@ button:hover {
   margin: 16px 0 0;
   color: #777;
   font-size: 14px;
+}
+
+/* Small thank-you line for the photographer */
+.photo-credit {
+  margin: 20px 0 0;
+  color: #999;
+  font-size: 11px;
+}
+
+.photo-credit a {
+  color: #999;
 }
