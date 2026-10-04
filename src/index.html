@@ -22,11 +22,28 @@
       <span id="counter" class="counter-pill"></span>
     </header>
 
-    <!-- The box where you type a new task, an optional due date, plus the Add button -->
+    <!-- The "add a task" form, in two rows -->
     <form id="task-form">
-      <input id="task-input" type="text" placeholder="What's next?" autocomplete="off">
-      <input id="due-input" type="date" title="Due date (optional)">
-      <button type="submit" class="add-btn">Add</button>
+      <!-- Row 1: type the task, then Add -->
+      <div class="form-row">
+        <input id="task-input" type="text" placeholder="What's next?" autocomplete="off">
+        <button type="submit" class="add-btn">Add</button>
+      </div>
+      <!-- Row 2: optional due date and time slot (start – end) -->
+      <div class="form-row when-row">
+        <label class="when-field">
+          <span>Due date</span>
+          <input id="due-input" type="date">
+        </label>
+        <div class="when-field slot-field">
+          <span>Time slot</span>
+          <div class="slot-inputs">
+            <input id="slot-start" type="time" aria-label="Slot start time">
+            <b>–</b>
+            <input id="slot-end" type="time" aria-label="Slot end time">
+          </div>
+        </div>
+      </div>
     </form>
 
     <!-- Empty list. JavaScript fills it with tasks -->

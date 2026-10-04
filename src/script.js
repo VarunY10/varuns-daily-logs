@@ -2,6 +2,8 @@
 const form = document.getElementById("task-form");
 const input = document.getElementById("task-input");
 const dueInput = document.getElementById("due-input");
+const slotStartInput = document.getElementById("slot-start");
+const slotEndInput = document.getElementById("slot-end");
 const list = document.getElementById("task-list");
 const counter = document.getElementById("counter");
 const toast = document.getElementById("toast");
@@ -10,9 +12,12 @@ const emptyState = document.getElementById("empty-state");
 const todayLabel = document.getElementById("today");
 
 // Our tasks live here. Each task looks like:
-// { text: "Buy milk", done: false, due: "2026-10-05", addedAt: "...", doneAt: null,
+// { text: "Run 5km", done: false, due: "2026-10-05", slotStart: "10:00", slotEnd: "10:30",
+//   addedAt: "...", doneAt: null,
 //   notes: [{ text: "Get the full-fat one", done: false }], notesOpen: false }
 //   due       = the day it must be done by ("" if no due date)
+//   slotStart = when you plan to START it, 24-hour form ("" if no time slot)
+//   slotEnd   = when you plan to FINISH it ("" if no end time)
 //   addedAt   = the moment it was added   ("logged in")
 //   doneAt    = the moment it was ticked  ("logged out"), or null if not done yet
 //   notes     = the numbered points (1, 2, 3...) for this task
@@ -50,11 +55,27 @@ function formatDay(dateString) {
   return shortDay(new Date(dateString + "T00:00"));
 }
 
+// A date → "7:59 PM"
+function shortTime(date) {
+  return date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+}
+
 // A saved moment → "4 Oct, 7:59 PM"
 function formatMoment(isoString) {
   const moment = new Date(isoString);
-  const time = moment.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
-  return `${shortDay(moment)}, ${time}`;
+  return `${shortDay(moment)}, ${shortTime(moment)}`;
+}
+
+// Has this task's due date already passed? (late once the whole day is over)
+function isOverdue(task) {
+  return !task.done && Boolean(task.due) && task.due < todayString();
+}
+
+// The time slot as words: "10:00 – 10:30", or just "10:00" / "until 10:30"
+function slotText(task) {
+  if (task.slotStart && task.slotEnd) return `${task.slotStart} – ${task.slotEnd}`;
+  if (task.slotStart) return task.slotStart;
+  return `until ${task.slotEnd}`;
 }
 
 // Which task's "Add a note" box should get the typing cursor after the next redraw
@@ -154,7 +175,6 @@ function renderNotes(task) {
 // Draw all the tasks on the page
 function render() {
   list.innerHTML = ""; // wipe the list clean, then rebuild it
-  const today = todayString();
 
   tasks.forEach((task, index) => {
     const li = document.createElement("li");
@@ -187,8 +207,8 @@ function render() {
     if (task.due) {
       const due = document.createElement("span");
       due.textContent = `Due: ${formatDay(task.due)}`;
-      // Date has passed and the task isn't done yet → red
-      if (!task.done && task.due < today) due.className = "overdue";
+      // Due date has passed and the task isn't done yet → red
+      if (isOverdue(task)) due.className = "overdue";
       info.append(due);
     }
     if (task.addedAt) {
@@ -203,7 +223,6 @@ function render() {
     }
 
     body.append(text, info);
-    if (task.notesOpen) body.append(renderNotes(task));
 
     // 📝 button: open / close this task's notes. Shows how many points it has.
     const notesBtn = document.createElement("button");
@@ -228,6 +247,25 @@ function render() {
     });
 
     li.append(checkbox, body, notesBtn, del);
+
+    // 🕙 Time slot bubble: the very last thing on the far right.
+    // Tasks without a slot get an invisible one, so the 📝 and ✕ buttons line up on every row.
+    const slot = document.createElement("span");
+    slot.className = "slot-badge";
+    if (task.slotStart || task.slotEnd) {
+      slot.textContent = `🕙 ${slotText(task)}`;
+    } else {
+      slot.classList.add("slot-empty");
+    }
+    li.append(slot);
+
+    // Notes go on their own line underneath, centred in the tile
+    if (task.notesOpen) {
+      const notesRow = document.createElement("div");
+      notesRow.className = "notes-row";
+      notesRow.append(renderNotes(task));
+      li.append(notesRow);
+    }
     list.appendChild(li);
   });
 
@@ -264,10 +302,19 @@ form.addEventListener("submit", (event) => {
   const text = input.value.trim();
   if (text === "") return; // ignore empty tasks
 
+  // A slot must finish AFTER it starts. If not, show a little warning and don't add yet
+  if (slotStartInput.value && slotEndInput.value && slotEndInput.value <= slotStartInput.value) {
+    slotEndInput.setCustomValidity("The end time must be after the start time");
+    slotEndInput.reportValidity();
+    return;
+  }
+
   tasks.push({
     text: text,
     done: false,
     due: dueInput.value, // "" if no date was picked
+    slotStart: slotStartInput.value, // "" if no start time was picked
+    slotEnd: slotEndInput.value,     // "" if no end time was picked
     addedAt: new Date().toISOString(), // the exact moment it was added
     doneAt: null,
     notes: [],
@@ -275,9 +322,14 @@ form.addEventListener("submit", (event) => {
   });
   input.value = "";
   dueInput.value = "";
+  slotStartInput.value = "";
+  slotEndInput.value = "";
   save();
   render();
 });
+
+// As soon as you change the end time, clear any old "end must be after start" warning
+slotEndInput.addEventListener("input", () => slotEndInput.setCustomValidity(""));
 
 // Write today's date under the title, like "Sunday, 4 October"
 todayLabel.textContent = new Date().toLocaleDateString("en-GB", {

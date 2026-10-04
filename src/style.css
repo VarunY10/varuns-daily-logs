@@ -88,13 +88,63 @@ h1 {
 
 #task-form {
   display: flex;
-  flex-wrap: wrap; /* on small phone screens, things move to a new line instead of squashing */
+  flex-direction: column; /* row 1 on top, row 2 underneath */
+  gap: 10px;
+}
+
+.form-row {
+  display: flex;
   gap: 8px;
+}
+
+/* Row 2: "Due date" and "Time", each a little label above its box */
+.when-row {
+  flex-wrap: wrap; /* on small phone screens, the time box moves to a new line instead of squashing */
+}
+
+.when-field {
+  flex: 1;
+  min-width: 140px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* The time slot gets a bit more room, for two boxes */
+.slot-field {
+  flex: 1.6;
+  min-width: 230px;
+}
+
+.slot-inputs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.slot-inputs input {
+  flex: 1;
+  min-width: 0;
+}
+
+.slot-inputs b {
+  color: var(--text-soft);
+}
+
+.when-field > span {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--text-soft);
+  padding-left: 2px;
 }
 
 /* All typing boxes share the glass look */
 #task-input,
 #due-input,
+#slot-start,
+#slot-end,
 .note-add input,
 .note-edit {
   font-family: inherit;
@@ -114,6 +164,8 @@ h1 {
 /* Glow pink when you click into a box */
 #task-input:focus,
 #due-input:focus,
+#slot-start:focus,
+#slot-end:focus,
 .note-add input:focus,
 .note-edit:focus {
   border-color: var(--pink);
@@ -127,10 +179,12 @@ h1 {
   font-size: 16px;
 }
 
-#due-input {
+#due-input,
+#slot-start,
+#slot-end {
   padding: 10px 12px;
   font-size: 14px;
-  color-scheme: dark; /* makes the little calendar icon and pop-up dark too */
+  color-scheme: dark; /* makes the little calendar / clock icons and pop-ups dark too */
 }
 
 /* ---------- Buttons ---------- */
@@ -253,6 +307,7 @@ input[type="checkbox"]:checked::after {
 /* Each task is a soft glass tile. ">" means: only the tasks themselves, not the note points inside them */
 #task-list > li {
   display: flex;
+  flex-wrap: wrap; /* lets the notes drop onto their own line underneath */
   align-items: flex-start; /* keep the tick box and buttons up by the task's name, even when notes are open */
   gap: 12px;
   padding: 12px 12px 12px 14px;
@@ -302,6 +357,38 @@ input[type="checkbox"]:checked::after {
   color: var(--text-soft);
 }
 
+.task-info span {
+  white-space: nowrap; /* never split "Added: 4 Oct, 8:23 PM" in the middle */
+}
+
+/* 🕙 The time slot bubble on the far right of a task */
+.slot-badge {
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 1px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--glass-border);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap; /* keep "10:00 – 10:30" on one line */
+  font-variant-numeric: tabular-nums; /* numbers line up neatly between tasks */
+  min-width: 118px; /* every bubble the same width, so buttons line up on every row */
+  box-sizing: border-box;
+  text-align: center;
+}
+
+/* Tasks with no slot: an invisible bubble that just holds the space */
+.slot-empty {
+  visibility: hidden;
+}
+
+#task-list > li.done .slot-badge {
+  opacity: 0.45;
+}
+
 /* Late tasks get a red bubble */
 .overdue {
   padding: 1px 8px;
@@ -313,8 +400,18 @@ input[type="checkbox"]:checked::after {
 
 /* ---------- The fold-out notes box ---------- */
 
+/* A full-width line under the task, with the notes box in the middle */
+.notes-row {
+  flex-basis: 100%;
+  display: flex;
+  justify-content: center;
+}
+
 .notes-panel {
-  margin-top: 8px;
+  width: 100%;
+  max-width: 400px;
+  box-sizing: border-box;
+  margin-top: 4px;
   padding: 10px 12px;
   background: rgba(0, 0, 0, 0.2);
   border-left: 3px solid var(--pink);
