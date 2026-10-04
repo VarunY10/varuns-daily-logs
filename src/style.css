@@ -1,3 +1,21 @@
+/* ============================================================
+   VARUN DALLE: frosted-glass look
+   ============================================================ */
+
+/* Colours we reuse everywhere. Change one here and it changes all over the page */
+:root {
+  --pink: #ec4899;
+  --pink-dark: #db2777;
+  --pink-glow: rgba(236, 72, 153, 0.45);
+  --text: #ffffff;
+  --text-soft: rgba(255, 255, 255, 0.7);   /* dates, small info */
+  --text-faint: rgba(255, 255, 255, 0.45); /* crossed-out tasks, placeholders */
+  --glass: rgba(18, 18, 28, 0.55);         /* the dark see-through card */
+  --glass-light: rgba(255, 255, 255, 0.07); /* task tiles, input boxes */
+  --glass-border: rgba(255, 255, 255, 0.16);
+  --red: #ff7a93;                           /* overdue (a softer red that's readable on dark glass) */
+}
+
 /* The whole page: jet photo background, center everything */
 body {
   margin: 0;
@@ -7,145 +25,305 @@ body {
   align-items: flex-start;
   padding: 60px 16px;
   box-sizing: border-box;
-  /* A see-through dark layer ON TOP of the photo, so the photo is calmer
-     and the white card stands out clearly */
+  /* A see-through dark layer ON TOP of the photo, so the photo is calmer */
   background:
-    linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)),
+    linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)),
     url("assets/jet.png") center / cover fixed;
   background-color: #555; /* grey fallback if the photo can't load */
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  color: #222;
+  font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--text);
 }
 
-/* The white box in the middle */
+/* The frosted-glass card in the middle */
 .card {
   width: 100%;
-  max-width: 520px; /* a bit wider, to fit the date picker */
+  max-width: 540px;
   box-sizing: border-box; /* count the padding INSIDE the width, so the card never spills off small screens */
-  background: white;
-  padding: 28px;
-  border-radius: 16px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35); /* stronger shadow so the card "floats" above the field */
+  padding: 32px;
+  border-radius: 24px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  /* The magic: blur whatever is BEHIND the card, like frosted bathroom glass */
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%); /* the same thing, for Safari */
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+}
+
+/* ---------- Top: title, date and the "3 left" bubble ---------- */
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 24px;
 }
 
 h1 {
   margin: 0;
-  font-size: 28px;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .subtitle {
-  margin: 4px 0 20px;
-  color: #777;
+  margin: 4px 0 0;
+  color: var(--text-soft);
+  font-size: 14px;
 }
 
-/* Typing box, date picker and Add button side by side */
+.counter-pill {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  border-radius: 999px; /* a huge number = fully round ends */
+  background: rgba(236, 72, 153, 0.2);
+  border: 1px solid rgba(236, 72, 153, 0.5);
+  color: #ffd1e6;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ---------- The "add a task" row ---------- */
+
 #task-form {
   display: flex;
   flex-wrap: wrap; /* on small phone screens, things move to a new line instead of squashing */
   gap: 8px;
 }
 
+/* All typing boxes share the glass look */
+#task-input,
+#due-input,
+.note-add input,
+.note-edit {
+  font-family: inherit;
+  color: var(--text);
+  background: var(--glass-light);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#task-input::placeholder,
+.note-add input::placeholder {
+  color: var(--text-faint);
+}
+
+/* Glow pink when you click into a box */
+#task-input:focus,
+#due-input:focus,
+.note-add input:focus,
+.note-edit:focus {
+  border-color: var(--pink);
+  box-shadow: 0 0 0 3px var(--pink-glow);
+}
+
 #task-input {
   flex: 1;
   min-width: 160px;
-  padding: 10px 12px;
+  padding: 12px 14px;
   font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
 }
 
 #due-input {
-  padding: 8px 10px;
-  font-size: 15px;
-  font-family: inherit;
-  color: #555;
-  border: 1px solid #ccc;
-  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+  color-scheme: dark; /* makes the little calendar icon and pop-up dark too */
 }
+
+/* ---------- Buttons ---------- */
 
 button {
-  padding: 10px 16px;
-  font-size: 16px;
-  border: none;
-  border-radius: 8px;
-  background: #ec4899;
-  color: white;
+  font-family: inherit;
   cursor: pointer;
+  border: none;
+  transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
 }
 
-button:hover {
-  background: #db2777;
+button:active {
+  transform: scale(0.95); /* a tiny "squish" when pressed */
 }
 
-/* The list of tasks */
+.add-btn,
+.note-add button {
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: 700;
+  color: white;
+  background: var(--pink);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px var(--pink-glow);
+}
+
+.add-btn:hover,
+.note-add button:hover {
+  background: var(--pink-dark);
+}
+
+/* See-through "ghost" buttons: notes, delete, clear */
+.notes-btn,
+.delete-btn,
+.note-delete,
+.clear-btn {
+  background: transparent;
+  color: var(--text-soft);
+  border-radius: 8px;
+}
+
+.notes-btn {
+  padding: 4px 9px;
+  font-size: 13px;
+  border: 1px solid var(--glass-border);
+}
+
+.notes-btn:hover,
+.clear-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text);
+}
+
+.delete-btn {
+  padding: 4px 8px;
+  font-size: 15px;
+}
+
+.delete-btn:hover,
+.note-delete:hover {
+  background: rgba(255, 122, 147, 0.18);
+  color: var(--red);
+}
+
+.clear-btn {
+  padding: 7px 14px;
+  font-size: 13px;
+  border: 1px solid var(--glass-border);
+}
+
+/* ---------- Round custom tick boxes ---------- */
+
+/* Throw away the browser's default square box and draw our own circle */
+input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  border-radius: 50%; /* 50% = a perfect circle */
+  display: grid;
+  place-content: center;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+input[type="checkbox"]:hover {
+  border-color: var(--pink);
+}
+
+/* Ticked: fill pink... */
+input[type="checkbox"]:checked {
+  background: var(--pink);
+  border-color: var(--pink);
+}
+
+/* ...and draw a white tick mark inside */
+input[type="checkbox"]:checked::after {
+  content: "";
+  width: 6px;
+  height: 11px;
+  border: solid white;
+  border-width: 0 2.5px 2.5px 0;
+  transform: translateY(-1px) rotate(45deg);
+}
+
+/* ---------- The task list ---------- */
+
 #task-list {
   list-style: none;
   padding: 0;
   margin: 20px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-/* ">" means: only the tasks themselves, not the note points inside them */
+/* Each task is a soft glass tile. ">" means: only the tasks themselves, not the note points inside them */
 #task-list > li {
   display: flex;
   align-items: flex-start; /* keep the tick box and buttons up by the task's name, even when notes are open */
-  gap: 10px;
-  padding: 10px 0;
-  border-bottom: 1px solid #eee;
+  gap: 12px;
+  padding: 12px 12px 12px 14px;
+  border-radius: 14px;
+  background: var(--glass-light);
+  border: 1px solid transparent;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+#task-list > li:hover {
+  background: rgba(255, 255, 255, 0.11);
+  border-color: var(--glass-border);
+}
+
+/* Nudge the tick box down a hair so it lines up with the task's words */
+#task-list > li > input[type="checkbox"] {
+  margin-top: 1px;
 }
 
 /* The task's words + info line take up all the middle space */
 .task-body {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-/* A finished task gets a line through it */
-/* Nudge the tick box down a hair so it lines up with the task's words */
-#task-list > li > input[type="checkbox"] {
-  margin-top: 5px;
+.task-text {
+  font-size: 16px;
+  font-weight: 500;
+  word-break: break-word;
 }
 
+/* A finished task fades and gets a line through it */
 #task-list > li.done .task-text {
   text-decoration: line-through;
-  color: #aaa;
+  color: var(--text-faint);
 }
 
-/* The small grey line under each task: due date, added, done */
+/* The small line under each task: due date, added, done */
 .task-info {
   display: flex;
   flex-wrap: wrap;
   gap: 4px 12px;
   font-size: 12px;
-  color: #888;
+  color: var(--text-soft);
 }
 
-/* The 📝 button that opens / closes a task's notes */
-.notes-btn {
-  padding: 4px 8px;
-  font-size: 13px;
-  background: transparent;
-  color: #555;
-  border: 1px solid #ddd;
+/* Late tasks get a red bubble */
+.overdue {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: rgba(255, 122, 147, 0.18);
+  color: var(--red);
+  font-weight: 700;
 }
 
-.notes-btn:hover {
-  background: #f3f3f3;
-}
+/* ---------- The fold-out notes box ---------- */
 
-/* The fold-out notes box */
 .notes-panel {
-  margin-top: 6px;
-  padding: 8px 12px;
-  background: #fdf2f8; /* very light pink, to match the Add button */
-  border-left: 3px solid #ec4899;
-  border-radius: 6px;
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border-left: 3px solid var(--pink);
+  border-radius: 10px;
 }
 
 .notes-panel ol {
   margin: 0 0 8px;
-  padding-left: 22px; /* room for the numbers 1. 2. 3. */
+  padding-left: 24px; /* room for the numbers 1. 2. 3. */
   font-size: 14px;
 }
 
@@ -157,9 +335,24 @@ button:hover {
   padding: 3px 0;
 }
 
-/* Inside each point: tick box, words, ✕ in a row */
-.notes-panel ol li > * {
-  vertical-align: middle;
+.notes-panel ol li::marker {
+  color: var(--pink); /* pink numbers */
+  font-weight: 700;
+}
+
+/* Smaller tick boxes for note points, sitting on the same line as the number */
+.notes-panel input[type="checkbox"] {
+  display: inline-grid;
+  vertical-align: -3px;
+  width: 16px;
+  height: 16px;
+  border-width: 1.5px;
+}
+
+.notes-panel input[type="checkbox"]:checked::after {
+  width: 4px;
+  height: 8px;
+  border-width: 0 2px 2px 0;
 }
 
 .note-text {
@@ -169,26 +362,19 @@ button:hover {
 
 .note-done .note-text {
   text-decoration: line-through;
-  color: #aaa;
+  color: var(--text-faint);
 }
 
 .note-edit {
   margin: 0 6px;
-  padding: 2px 6px;
+  padding: 3px 8px;
   font-size: 14px;
-  border: 1px solid #ec4899;
-  border-radius: 4px;
+  border-radius: 6px;
 }
 
 .note-delete {
   padding: 0 6px;
   font-size: 12px;
-  background: transparent;
-  color: #c33;
-}
-
-.note-delete:hover {
-  background: #fde8e8;
 }
 
 /* The "Add a note" row */
@@ -200,76 +386,48 @@ button:hover {
 .note-add input {
   flex: 1;
   min-width: 0;
-  padding: 6px 8px;
+  padding: 7px 10px;
   font-size: 14px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+  border-radius: 8px;
 }
 
 .note-add button {
-  padding: 4px 12px;
-  font-size: 16px;
+  padding: 4px 14px;
+  border-radius: 8px;
+  box-shadow: none;
 }
 
-/* Late tasks shout in red */
-.overdue {
-  color: #c33;
-  font-weight: bold;
+/* ---------- Empty list message and bottom row ---------- */
+
+.empty-state {
+  margin: 24px 0 8px;
+  text-align: center;
+  color: var(--text-soft);
+  font-size: 15px;
 }
 
-/* The small ✕ delete button */
-.delete-btn {
-  background: transparent;
-  color: #c33;
-  padding: 4px 8px;
-}
-
-.delete-btn:hover {
-  background: #fde8e8;
-}
-
-/* Counter on the left, Clear button on the right */
 .list-footer {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
+  justify-content: flex-end;
   margin-top: 16px;
 }
 
-.counter {
-  margin: 0;
-  color: #777;
-  font-size: 14px;
-}
+/* ---------- "Smashed it mate" pop-up ---------- */
 
-/* A quieter, outlined button, so the pink Add button stays the star */
-.clear-btn {
-  padding: 6px 12px;
-  font-size: 14px;
-  background: transparent;
-  color: #555;
-  border: 1px solid #ccc;
-}
-
-.clear-btn:hover {
-  background: #f3f3f3;
-}
-
-/* The "Smashed it mate" pop-up. It waits hidden ABOVE the top of the screen */
+/* It waits hidden ABOVE the top of the screen */
 .toast {
   position: fixed;
   top: -80px;
   left: 50%;
   transform: translateX(-50%);
-  padding: 14px 24px;
-  border-radius: 12px;
-  background: #ec4899;
+  padding: 14px 26px;
+  border-radius: 999px;
+  background: var(--pink);
   color: white;
   font-size: 18px;
-  font-weight: bold;
+  font-weight: 800;
   white-space: nowrap;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 8px 30px var(--pink-glow);
   pointer-events: none; /* clicks go "through" it */
 }
 
@@ -286,4 +444,20 @@ button:hover {
   60%  { left: 30%;             transform: translateX(-50%) rotate(-10deg); }
   80%  { left: 70%;             transform: translateX(-50%) rotate(10deg); }
   100% { top: 100vh; left: 50%; transform: translateX(-50%) rotate(0deg); }
+}
+
+/* ---------- Small phone screens ---------- */
+
+@media (max-width: 480px) {
+  body {
+    padding-top: 24px;
+  }
+
+  .card {
+    padding: 22px 18px;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
 }

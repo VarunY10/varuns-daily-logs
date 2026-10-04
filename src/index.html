@@ -4,27 +4,39 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Varun Dalle</title>
+  <!-- A nicer font from Google Fonts. If there's no internet, the page uses the Mac's own font instead -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
   <!-- Connect the "looks" file -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <main class="card">
-    <h1>Varun Dalle</h1>
-    <p class="subtitle">My to-do list</p>
+    <!-- Top: title and today's date on the left, "3 left" bubble on the right -->
+    <header class="card-header">
+      <div>
+        <h1>Varun Dalle</h1>
+        <p id="today" class="subtitle"></p>
+      </div>
+      <span id="counter" class="counter-pill"></span>
+    </header>
 
     <!-- The box where you type a new task, an optional due date, plus the Add button -->
     <form id="task-form">
-      <input id="task-input" type="text" placeholder="What do you need to do?" autocomplete="off">
+      <input id="task-input" type="text" placeholder="What's next?" autocomplete="off">
       <input id="due-input" type="date" title="Due date (optional)">
-      <button type="submit">Add</button>
+      <button type="submit" class="add-btn">Add</button>
     </form>
 
     <!-- Empty list. JavaScript fills it with tasks -->
     <ul id="task-list"></ul>
 
-    <!-- Bottom row: how many tasks are left, plus the Clear done button -->
+    <!-- Shown only when there are no tasks at all -->
+    <p id="empty-state" class="empty-state">Nothing to do yet. Add a task above! ✈️</p>
+
+    <!-- Bottom row: the Clear done button -->
     <div class="list-footer">
-      <p id="counter" class="counter"></p>
       <button id="clear-done" class="clear-btn" type="button">Clear done tasks</button>
     </div>
   </main>

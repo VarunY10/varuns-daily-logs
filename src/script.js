@@ -6,6 +6,8 @@ const list = document.getElementById("task-list");
 const counter = document.getElementById("counter");
 const toast = document.getElementById("toast");
 const clearDoneBtn = document.getElementById("clear-done");
+const emptyState = document.getElementById("empty-state");
+const todayLabel = document.getElementById("today");
 
 // Our tasks live here. Each task looks like:
 // { text: "Buy milk", done: false, due: "2026-10-05", addedAt: "...", doneAt: null,
@@ -236,11 +238,14 @@ function render() {
     focusNotesOf = null;
   }
 
-  // Show how many tasks are left
+  // The bubble at the top: how many tasks are left
   const left = tasks.filter((t) => !t.done).length;
-  counter.textContent = tasks.length === 0
-    ? "Nothing to do yet. Add a task above!"
-    : `${left} of ${tasks.length} tasks left`;
+  counter.textContent = tasks.length === 0 ? "No tasks"
+    : left === 0 ? "All done 🎉"
+    : `${left} left`;
+
+  // Only show the "Nothing to do yet" message when the list is empty
+  emptyState.hidden = tasks.length > 0;
 
   // Only show the Clear button when there's at least one done task to clear
   clearDoneBtn.hidden = !tasks.some((t) => t.done);
@@ -272,6 +277,11 @@ form.addEventListener("submit", (event) => {
   dueInput.value = "";
   save();
   render();
+});
+
+// Write today's date under the title, like "Sunday, 4 October"
+todayLabel.textContent = new Date().toLocaleDateString("en-GB", {
+  weekday: "long", day: "numeric", month: "long",
 });
 
 // Draw the list once when the page first opens
