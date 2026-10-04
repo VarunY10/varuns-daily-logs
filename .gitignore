@@ -1,0 +1,9 @@
+# IntelliJ's own settings files (not our code)
+.idea/
+*.iml
+
+# Mac junk files
+.DS_Store
+
+# Secrets (passwords, keys) - never save these in Git
+.env

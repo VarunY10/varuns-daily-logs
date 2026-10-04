@@ -1,0 +1,103 @@
+/* The whole page: soft background, center everything */
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 60px 16px;
+  box-sizing: border-box;
+  background: #eef1f7;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #222;
+}
+
+/* The white box in the middle */
+.card {
+  width: 100%;
+  max-width: 440px;
+  background: white;
+  padding: 28px;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.subtitle {
+  margin: 4px 0 20px;
+  color: #777;
+}
+
+/* Typing box and Add button side by side */
+#task-form {
+  display: flex;
+  gap: 8px;
+}
+
+#task-input {
+  flex: 1;
+  padding: 10px 12px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+button {
+  padding: 10px 16px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  background: #4a6cf7;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #3755d8;
+}
+
+/* The list of tasks */
+#task-list {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0 0;
+}
+
+#task-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+#task-list li span {
+  flex: 1;
+}
+
+/* A finished task gets a line through it */
+#task-list li.done span {
+  text-decoration: line-through;
+  color: #aaa;
+}
+
+/* The small ✕ delete button */
+.delete-btn {
+  background: transparent;
+  color: #c33;
+  padding: 4px 8px;
+}
+
+.delete-btn:hover {
+  background: #fde8e8;
+}
+
+.counter {
+  margin: 16px 0 0;
+  color: #777;
+  font-size: 14px;
+}
