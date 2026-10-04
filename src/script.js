@@ -172,11 +172,29 @@ function renderNotes(task) {
   return panel;
 }
 
+// The time a task is sorted by: its slot start, or its end if it only has an end.
+// No slot at all → null
+function slotSortTime(task) {
+  return task.slotStart || task.slotEnd || null;
+}
+
+// Put tasks in the order of your day: earliest time slot first, tasks without a slot at the bottom
+function sortedBySlot(allTasks) {
+  return [...allTasks].sort((a, b) => { // [...allTasks] = sort a COPY, so the saved order stays the same
+    const timeA = slotSortTime(a);
+    const timeB = slotSortTime(b);
+    if (timeA && !timeB) return -1; // a has a slot, b doesn't → a goes first
+    if (!timeA && timeB) return 1;  // b has a slot, a doesn't → b goes first
+    if (!timeA && !timeB) return 0; // neither has a slot → keep the order they were added
+    return timeA.localeCompare(timeB); // both have slots → earlier time first ("09:00" before "10:00")
+  });
+}
+
 // Draw all the tasks on the page
 function render() {
   list.innerHTML = ""; // wipe the list clean, then rebuild it
 
-  tasks.forEach((task, index) => {
+  sortedBySlot(tasks).forEach((task) => {
     const li = document.createElement("li");
     if (task.done) li.classList.add("done");
 
@@ -241,7 +259,7 @@ function render() {
     del.textContent = "✕";
     del.className = "delete-btn";
     del.addEventListener("click", () => {
-      tasks.splice(index, 1);
+      tasks.splice(tasks.indexOf(task), 1); // find THIS task in the saved list and remove it
       save();
       render();
     });
