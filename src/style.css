@@ -106,3 +106,35 @@ button:hover {
   color: #777;
   font-size: 14px;
 }
+
+/* The "Smashed it mate" pop-up. It waits hidden ABOVE the top of the screen */
+.toast {
+  position: fixed;
+  top: -80px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 14px 24px;
+  border-radius: 12px;
+  background: #ec4899;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  white-space: nowrap;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  pointer-events: none; /* clicks go "through" it */
+}
+
+/* When JavaScript adds the "fly" class, it plays the flying animation once */
+.toast.fly {
+  animation: fly-down 3s ease-in-out forwards;
+}
+
+/* The flight path: from above the top, zig-zag left and right, out past the bottom */
+@keyframes fly-down {
+  0%   { top: -80px; left: 50%; transform: translateX(-50%) rotate(0deg); }
+  20%  { left: 25%;             transform: translateX(-50%) rotate(-12deg); }
+  40%  { left: 75%;             transform: translateX(-50%) rotate(12deg); }
+  60%  { left: 30%;             transform: translateX(-50%) rotate(-10deg); }
+  80%  { left: 70%;             transform: translateX(-50%) rotate(10deg); }
+  100% { top: 100vh; left: 50%; transform: translateX(-50%) rotate(0deg); }
+}

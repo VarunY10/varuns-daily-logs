@@ -3,6 +3,7 @@ const form = document.getElementById("task-form");
 const input = document.getElementById("task-input");
 const list = document.getElementById("task-list");
 const counter = document.getElementById("counter");
+const toast = document.getElementById("toast");
 
 // Our tasks live here. Each task looks like: { text: "Buy milk", done: false }
 // We load them from the browser's memory (localStorage) so they survive a refresh.
@@ -11,6 +12,13 @@ let tasks = JSON.parse(localStorage.getItem("varun-dalle-tasks")) || [];
 // Save tasks into the browser's memory
 function save() {
   localStorage.setItem("varun-dalle-tasks", JSON.stringify(tasks));
+}
+
+// Make "Smashed it mate" fly from the top of the screen to the bottom
+function showToast() {
+  toast.classList.remove("fly");
+  void toast.offsetWidth; // little trick: makes the browser forget the old flight, so it can fly again
+  toast.classList.add("fly");
 }
 
 // Draw all the tasks on the page
@@ -27,6 +35,7 @@ function render() {
     checkbox.checked = task.done;
     checkbox.addEventListener("change", () => {
       task.done = checkbox.checked;
+      if (task.done) showToast(); // only celebrate when ticking, not un-ticking
       save();
       render();
     });
