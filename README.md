@@ -1,4 +1,4 @@
-# Varun Dalle
+# Varun's Daily Logs
 
 A to-do list webpage with a frosted-glass design over a fighter-jet background.
 It's built with plain HTML, CSS and JavaScript, with no installs or build step.

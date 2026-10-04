@@ -1,7 +1,7 @@
-# Varun Dalle – project notes for Claude
+# Varun's Daily Logs – project notes for Claude
 
 ## What this is
-A to-do list webpage called "Varun Dalle". Plain HTML, CSS and JavaScript, with no frameworks and no build step. The README lists the user-facing features.
+A to-do list webpage called "Varun's Daily Logs" (originally named "Varun Dalle"). Plain HTML, CSS and JavaScript, with no frameworks and no build step. The README lists the user-facing features.
 
 ## Files
 - `src/index.html`: page structure (header, two-row add form, list, toast)
@@ -10,7 +10,7 @@ A to-do list webpage called "Varun Dalle". Plain HTML, CSS and JavaScript, with 
 - `src/assets/jet.png`: background photo
 
 ## Data
-Tasks are saved in localStorage under `varun-dalle-tasks`. Each task looks like:
+Tasks are saved in localStorage under `varun-dalle-tasks` (the old name, kept on purpose: changing it would hide all saved tasks). Each task looks like:
 `{ text, done, due, slotStart, slotEnd, addedAt, doneAt, notes: [{ text, done }], notesOpen }`
 - Older saved tasks may be missing newer fields, so always handle that (e.g. `task.notes || []`).
 - The list is shown sorted by time slot (`sortedBySlot`, which sorts a copy). Never rely on the on-screen position as an index into `tasks`; use `tasks.indexOf(task)`.

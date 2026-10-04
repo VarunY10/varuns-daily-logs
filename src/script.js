@@ -23,6 +23,7 @@ const todayLabel = document.getElementById("today");
 //   notes     = the numbered points (1, 2, 3...) for this task
 //   notesOpen = is the notes box folded out right now?
 // We load them from the browser's memory (localStorage) so they survive a refresh.
+// (The label "varun-dalle-tasks" is from the app's old name. Keep it! Changing it would lose all saved tasks.)
 let tasks = JSON.parse(localStorage.getItem("varun-dalle-tasks")) || [];
 
 // Save tasks into the browser's memory
