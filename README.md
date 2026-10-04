@@ -36,6 +36,19 @@ Click **📝** on a task to open its numbered notes (1, 2, 3…):
 - **Edit** a point: double-click it, then press Enter to save or Esc to cancel
 - **Delete** a point with its small **✕**
 
+### Focus timer ⏱️
+A second card with a timer that works like the Timer in Apple's Clock app:
+- **Scroll the wheels** to pick hours, minutes and seconds, then press **Start**
+- A pink **ring shrinks** as time runs out, with `🔔 9:41 PM` showing when it ends
+- **Pause / Resume** and **Cancel** buttons. The browser tab shows the countdown too.
+- When time's up: three soft chimes, and **"Time's up! ⏰"** flies down the screen
+- **Quick focus**: one tap for 25 min, 15 min or a 5 min break
+- **Recent**: your last 3 timers, one tap to run again
+- **Focus on a task**: press **⏱️** on a task to start a timer for it. It uses the task's time slot length
+  (10:00–10:30 → 30 min), or 25 min if it has no slot. The task glows pink while you focus.
+- **Focus time is tracked**: each task shows its total, like `⏱️ 50 min focused`
+- A running timer keeps going if you refresh or close the page
+
 ## Where your tasks are saved
 
 Tasks are saved in your **browser's own storage** (`localStorage`), so they survive refreshes and restarts. Keep in mind:
@@ -53,6 +66,7 @@ VC1/
     ├── index.html     ← the skeleton: what's on the page
     ├── style.css      ← the clothes: colours, layout, the glass look
     ├── script.js      ← the brain: adding, ticking, notes, sorting, saving
+    ├── timer.js       ← the timer's brain: wheels, countdown, focus tracking
     └── assets/
         └── jet.png    ← background photo
 ```

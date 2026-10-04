@@ -6,12 +6,15 @@ A to-do list webpage called "Varun's Daily Logs" (originally named "Varun Dalle"
 ## Files
 - `src/index.html`: page structure (header, two-row add form, list, toast)
 - `src/style.css`: frosted-glass look; colours live in CSS variables under `:root`
-- `src/script.js`: all behaviour. `render()` rebuilds the whole list from `tasks` on every change.
+- `src/script.js`: task behaviour. `render()` rebuilds the whole list from `tasks` on every change.
+- `src/timer.js`: the focus timer. Loaded BEFORE script.js; script.js calls `initTimer()` at its end.
+  Both files share globals (`tasks`, `save`, `render`, `timer`, `showToast`...), so only use them inside functions.
 - `src/assets/jet.png`: background photo
 
 ## Data
 Tasks are saved in localStorage under `varun-dalle-tasks` (the old name, kept on purpose: changing it would hide all saved tasks). Each task looks like:
-`{ text, done, due, slotStart, slotEnd, addedAt, doneAt, notes: [{ text, done }], notesOpen }`
+`{ id, text, done, due, slotStart, slotEnd, addedAt, doneAt, notes: [{ text, done }], notesOpen, focusSeconds }`
+The timer is saved under `varun-daily-logs-timer` (it stores `taskId`, and uses timestamps so it keeps running across reloads), and recent timers under `varun-daily-logs-timer-recents`.
 - Older saved tasks may be missing newer fields, so always handle that (e.g. `task.notes || []`).
 - The list is shown sorted by time slot (`sortedBySlot`, which sorts a copy). Never rely on the on-screen position as an index into `tasks`; use `tasks.indexOf(task)`.
 

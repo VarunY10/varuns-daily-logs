@@ -22,17 +22,31 @@ const todayLabel = document.getElementById("today");
 //   doneAt    = the moment it was ticked  ("logged out"), or null if not done yet
 //   notes     = the numbered points (1, 2, 3...) for this task
 //   notesOpen = is the notes box folded out right now?
+//   id           = a unique name tag, so the timer can find this task again
+//   focusSeconds = total time spent focusing on it with the timer
 // We load them from the browser's memory (localStorage) so they survive a refresh.
 // (The label "varun-dalle-tasks" is from the app's old name. Keep it! Changing it would lose all saved tasks.)
 let tasks = JSON.parse(localStorage.getItem("varun-dalle-tasks")) || [];
+
+// Make a unique name tag for a task, like "m1x2k9abc12"
+function makeId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+// Older tasks were saved before name tags existed. Give them one now.
+tasks.forEach((task) => {
+  if (!task.id) task.id = makeId();
+});
 
 // Save tasks into the browser's memory
 function save() {
   localStorage.setItem("varun-dalle-tasks", JSON.stringify(tasks));
 }
+save(); // store the new name tags straight away
 
-// Make "Smashed it mate" fly from the top of the screen to the bottom
-function showToast() {
+// Make a message fly from the top of the screen to the bottom ("Smashed it mate" unless told otherwise)
+function showToast(message = "Smashed it mate") {
+  toast.textContent = message;
   toast.classList.remove("fly");
   void toast.offsetWidth; // little trick: makes the browser forget the old flight, so it can fly again
   toast.classList.add("fly");
@@ -198,6 +212,7 @@ function render() {
   sortedBySlot(tasks).forEach((task) => {
     const li = document.createElement("li");
     if (task.done) li.classList.add("done");
+    if (isFocusingOn(task)) li.classList.add("focusing"); // glows pink while the timer runs for it
 
     // Tick box: click it to mark done / not done
     const checkbox = document.createElement("input");
@@ -240,8 +255,22 @@ function render() {
       finished.textContent = `Done: ${formatMoment(task.doneAt)}`;
       info.append(finished);
     }
+    if (task.focusSeconds >= 60) {
+      const focused = document.createElement("span");
+      focused.className = "focused-time";
+      // Whole minutes only: 3061 seconds → "51 min focused"
+      focused.textContent = `⏱️ ${durationLabel(Math.floor(task.focusSeconds / 60) * 60)} focused`;
+      info.append(focused);
+    }
 
     body.append(text, info);
+
+    // ⏱️ button: start the focus timer for this task
+    const focusBtn = document.createElement("button");
+    focusBtn.className = "focus-btn";
+    focusBtn.textContent = "⏱️";
+    focusBtn.title = "Focus on this task";
+    focusBtn.addEventListener("click", () => startFocusOnTask(task));
 
     // 📝 button: open / close this task's notes. Shows how many points it has.
     const notesBtn = document.createElement("button");
@@ -265,7 +294,12 @@ function render() {
       render();
     });
 
-    li.append(checkbox, body, notesBtn, del);
+    // The three buttons live together in one little group (on phones the group moves under the task)
+    const actions = document.createElement("div");
+    actions.className = "task-actions";
+    actions.append(focusBtn, notesBtn, del);
+
+    li.append(checkbox, body, actions);
 
     // 🕙 Time slot bubble: the very last thing on the far right.
     // Tasks without a slot get an invisible one, so the 📝 and ✕ buttons line up on every row.
@@ -338,6 +372,8 @@ form.addEventListener("submit", (event) => {
     doneAt: null,
     notes: [],
     notesOpen: false,
+    id: makeId(),
+    focusSeconds: 0,
   });
   input.value = "";
   dueInput.value = "";
@@ -357,3 +393,6 @@ todayLabel.textContent = new Date().toLocaleDateString("en-GB", {
 
 // Draw the list once when the page first opens
 render();
+
+// Get the focus timer going (it lives in timer.js)
+initTimer();

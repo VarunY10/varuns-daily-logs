@@ -34,6 +34,21 @@ body {
   color: var(--text);
 }
 
+/* The two cards side by side: list on the left, timer on the right */
+.layout {
+  width: 100%;
+  max-width: 904px;
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.layout > main.card {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 /* The frosted-glass card in the middle */
 .card {
   width: 100%;
@@ -216,7 +231,8 @@ button:active {
   background: var(--pink-dark);
 }
 
-/* See-through "ghost" buttons: notes, delete, clear */
+/* See-through "ghost" buttons: focus, notes, delete, clear */
+.focus-btn,
 .notes-btn,
 .delete-btn,
 .note-delete,
@@ -226,12 +242,14 @@ button:active {
   border-radius: 8px;
 }
 
+.focus-btn,
 .notes-btn {
   padding: 4px 9px;
   font-size: 13px;
   border: 1px solid var(--glass-border);
 }
 
+.focus-btn:hover,
 .notes-btn:hover,
 .clear-btn:hover {
   background: rgba(255, 255, 255, 0.12);
@@ -320,6 +338,25 @@ input[type="checkbox"]:checked::after {
 #task-list > li:hover {
   background: rgba(255, 255, 255, 0.11);
   border-color: var(--glass-border);
+}
+
+/* The ⏱️ 📝 ✕ buttons, kept together */
+.task-actions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+/* The task you're focusing on glows pink */
+#task-list > li.focusing {
+  border-color: var(--pink);
+  box-shadow: 0 0 18px var(--pink-glow);
+}
+
+#task-list > li.focusing .focus-btn {
+  background: var(--pink);
+  border-color: var(--pink);
 }
 
 /* Nudge the tick box down a hair so it lines up with the task's words */
@@ -494,6 +531,12 @@ input[type="checkbox"]:checked::after {
   box-shadow: none;
 }
 
+/* "⏱️ 50 min focused" in the info line */
+.focused-time {
+  color: #ffd1e6;
+  font-weight: 600;
+}
+
 /* ---------- Empty list message and bottom row ---------- */
 
 .empty-state {
@@ -507,6 +550,256 @@ input[type="checkbox"]:checked::after {
   display: flex;
   justify-content: flex-end;
   margin-top: 16px;
+}
+
+/* ============================================================
+   FOCUS TIMER CARD
+   ============================================================ */
+
+.timer-card {
+  flex: 0 0 340px;
+  position: sticky; /* stays in view while you scroll a long list */
+  top: 24px;
+}
+
+.timer-card h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.focus-label {
+  margin: 6px 0 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-soft);
+}
+
+.focus-label b {
+  color: #ffd1e6;
+}
+
+/* ---------- Scroll wheels ---------- */
+
+.wheels {
+  position: relative;
+  display: flex;
+  gap: 4px;
+  height: 170px; /* 5 rows of 34px */
+  margin: 16px 0 4px;
+}
+
+/* The see-through bar behind the middle row, like Apple's */
+.wheels::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 68px;
+  height: 34px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+}
+
+.wheel {
+  position: relative;
+  flex: 1;
+  height: 100%;
+}
+
+.wheel-scroll {
+  height: 100%;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory; /* always stop with one number exactly in the middle */
+  padding: 68px 0;               /* empty space so the first and last numbers can reach the middle */
+  box-sizing: border-box;
+  scrollbar-width: none;         /* hide the scrollbar */
+  /* fade the numbers out towards the top and bottom */
+  mask-image: linear-gradient(transparent, black 30%, black 70%, transparent);
+  -webkit-mask-image: linear-gradient(transparent, black 30%, black 70%, transparent);
+}
+
+.wheel-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.wheel-item {
+  height: 34px;
+  line-height: 34px;
+  scroll-snap-align: center;
+  text-align: right;
+  padding-right: 50%;
+  font-size: 20px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-faint);
+  cursor: pointer;
+  user-select: none;
+}
+
+.wheel-item.selected {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* "hours" / "min" / "sec" sitting beside the middle number */
+.wheel-label {
+  position: absolute;
+  top: 68px;
+  left: 56%;
+  line-height: 34px;
+  font-size: 13px;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+/* ---------- The ring and countdown ---------- */
+
+.ring-wrap {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  margin: 12px auto 0;
+}
+
+.ring {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg); /* start the ring at 12 o'clock */
+}
+
+.ring-track {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 8;
+}
+
+/* The pink line that shrinks as time passes */
+.ring-progress {
+  fill: none;
+  stroke: var(--pink);
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.25s linear;
+  filter: drop-shadow(0 0 6px var(--pink-glow));
+}
+
+.ring-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.timer-time {
+  font-size: 46px;
+  font-weight: 500;
+  letter-spacing: -1px;
+  font-variant-numeric: tabular-nums; /* digits don't wobble as they change */
+}
+
+.timer-ends {
+  font-size: 14px;
+  color: var(--text-soft);
+}
+
+/* Time's up: smaller words, and the ring gently pulses */
+.ring-wrap.done .timer-time {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.ring-wrap.done .ring-track {
+  stroke: var(--pink);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  50% { opacity: 0.35; }
+}
+
+/* ---------- Apple-style round buttons ---------- */
+
+.timer-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 18px;
+  padding: 0 4px;
+}
+
+.round-btn {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* The thin outer ring with a gap, like Apple's buttons */
+.round-btn.cancel {
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--text);
+  box-shadow: 0 0 0 3px rgba(30, 30, 40, 0.9), 0 0 0 5px rgba(255, 255, 255, 0.14);
+}
+
+.round-btn.start {
+  background: rgba(236, 72, 153, 0.28);
+  color: #ff9fd0;
+  box-shadow: 0 0 0 3px rgba(30, 30, 40, 0.9), 0 0 0 5px rgba(236, 72, 153, 0.35);
+}
+
+.round-btn.pause {
+  background: rgba(245, 158, 11, 0.25);
+  color: #fbbf24;
+  box-shadow: 0 0 0 3px rgba(30, 30, 40, 0.9), 0 0 0 5px rgba(245, 158, 11, 0.3);
+}
+
+.round-btn:hover:not(:disabled) {
+  filter: brightness(1.25);
+}
+
+.round-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* ---------- Quick focus and recent timers ---------- */
+
+.quick-title {
+  margin: 22px 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--text-soft);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+
+.chip {
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: var(--glass-light);
+  border: 1px solid var(--glass-border);
+  color: var(--text);
+  font-size: 13px;
+}
+
+.chip:hover {
+  border-color: var(--pink);
+  background: rgba(236, 72, 153, 0.15);
 }
 
 /* ---------- "Smashed it mate" pop-up ---------- */
@@ -541,6 +834,47 @@ input[type="checkbox"]:checked::after {
   60%  { left: 30%;             transform: translateX(-50%) rotate(-10deg); }
   80%  { left: 70%;             transform: translateX(-50%) rotate(10deg); }
   100% { top: 100vh; left: 50%; transform: translateX(-50%) rotate(0deg); }
+}
+
+/* ---------- Narrower screens: timer card moves under the list ---------- */
+
+@media (max-width: 920px) {
+  .layout {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .layout > main.card,
+  .timer-card {
+    flex: none;
+    width: 100%;
+    max-width: 540px;
+    position: static;
+  }
+}
+
+/* ---------- Phones: each task becomes a small grid ----------
+   Top line:    ◯  Task name...            🕙 10:00 – 10:30
+   Next line:      Added: ...                     ⏱️  📝  ✕
+   (notes box underneath, full width) */
+
+@media (max-width: 600px) {
+  #task-list > li {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    column-gap: 10px;
+    row-gap: 6px;
+  }
+
+  #task-list > li > input[type="checkbox"] { grid-column: 1; grid-row: 1; }
+  .task-body                               { grid-column: 2; grid-row: 1 / 3; }
+  .slot-badge                              { grid-column: 3; grid-row: 1; min-width: 0; }
+  .task-actions                            { grid-column: 3; grid-row: 2; justify-content: flex-end; gap: 6px; }
+  .notes-row                               { grid-column: 1 / -1; grid-row: 3; }
+
+  .slot-empty {
+    display: none; /* no need to hold space on phones */
+  }
 }
 
 /* ---------- Small phone screens ---------- */
