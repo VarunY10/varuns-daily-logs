@@ -4,6 +4,7 @@ const input = document.getElementById("task-input");
 const list = document.getElementById("task-list");
 const counter = document.getElementById("counter");
 const toast = document.getElementById("toast");
+const clearDoneBtn = document.getElementById("clear-done");
 
 // Our tasks live here. Each task looks like: { text: "Buy milk", done: false }
 // We load them from the browser's memory (localStorage) so they survive a refresh.
@@ -63,7 +64,17 @@ function render() {
   counter.textContent = tasks.length === 0
     ? "Nothing to do yet. Add a task above!"
     : `${left} of ${tasks.length} tasks left`;
+
+  // Only show the Clear button when there's at least one done task to clear
+  clearDoneBtn.hidden = !tasks.some((t) => t.done);
 }
+
+// Clear done tasks: keep only the tasks that are NOT done
+clearDoneBtn.addEventListener("click", () => {
+  tasks = tasks.filter((t) => !t.done);
+  save();
+  render();
+});
 
 // When you press Add (or Enter), add a new task
 form.addEventListener("submit", (event) => {

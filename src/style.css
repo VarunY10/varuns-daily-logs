@@ -101,10 +101,32 @@ button:hover {
   background: #fde8e8;
 }
 
+/* Counter on the left, Clear button on the right */
+.list-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
 .counter {
-  margin: 16px 0 0;
+  margin: 0;
   color: #777;
   font-size: 14px;
+}
+
+/* A quieter, outlined button, so the pink Add button stays the star */
+.clear-btn {
+  padding: 6px 12px;
+  font-size: 14px;
+  background: transparent;
+  color: #555;
+  border: 1px solid #ccc;
+}
+
+.clear-btn:hover {
+  background: #f3f3f3;
 }
 
 /* The "Smashed it mate" pop-up. It waits hidden ABOVE the top of the screen */
