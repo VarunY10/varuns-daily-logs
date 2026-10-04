@@ -84,9 +84,10 @@ button:hover {
   margin: 20px 0 0;
 }
 
-#task-list li {
+/* ">" means: only the tasks themselves, not the note points inside them */
+#task-list > li {
   display: flex;
-  align-items: center;
+  align-items: flex-start; /* keep the tick box and buttons up by the task's name, even when notes are open */
   gap: 10px;
   padding: 10px 0;
   border-bottom: 1px solid #eee;
@@ -101,7 +102,12 @@ button:hover {
 }
 
 /* A finished task gets a line through it */
-#task-list li.done .task-text {
+/* Nudge the tick box down a hair so it lines up with the task's words */
+#task-list > li > input[type="checkbox"] {
+  margin-top: 5px;
+}
+
+#task-list > li.done .task-text {
   text-decoration: line-through;
   color: #aaa;
 }
@@ -113,6 +119,96 @@ button:hover {
   gap: 4px 12px;
   font-size: 12px;
   color: #888;
+}
+
+/* The 📝 button that opens / closes a task's notes */
+.notes-btn {
+  padding: 4px 8px;
+  font-size: 13px;
+  background: transparent;
+  color: #555;
+  border: 1px solid #ddd;
+}
+
+.notes-btn:hover {
+  background: #f3f3f3;
+}
+
+/* The fold-out notes box */
+.notes-panel {
+  margin-top: 6px;
+  padding: 8px 12px;
+  background: #fdf2f8; /* very light pink, to match the Add button */
+  border-left: 3px solid #ec4899;
+  border-radius: 6px;
+}
+
+.notes-panel ol {
+  margin: 0 0 8px;
+  padding-left: 22px; /* room for the numbers 1. 2. 3. */
+  font-size: 14px;
+}
+
+.notes-panel ol:empty {
+  display: none; /* no points yet? hide the empty list */
+}
+
+.notes-panel ol li {
+  padding: 3px 0;
+}
+
+/* Inside each point: tick box, words, ✕ in a row */
+.notes-panel ol li > * {
+  vertical-align: middle;
+}
+
+.note-text {
+  margin: 0 6px;
+  cursor: text;
+}
+
+.note-done .note-text {
+  text-decoration: line-through;
+  color: #aaa;
+}
+
+.note-edit {
+  margin: 0 6px;
+  padding: 2px 6px;
+  font-size: 14px;
+  border: 1px solid #ec4899;
+  border-radius: 4px;
+}
+
+.note-delete {
+  padding: 0 6px;
+  font-size: 12px;
+  background: transparent;
+  color: #c33;
+}
+
+.note-delete:hover {
+  background: #fde8e8;
+}
+
+/* The "Add a note" row */
+.note-add {
+  display: flex;
+  gap: 6px;
+}
+
+.note-add input {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 8px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.note-add button {
+  padding: 4px 12px;
+  font-size: 16px;
 }
 
 /* Late tasks shout in red */

@@ -8,10 +8,13 @@ const toast = document.getElementById("toast");
 const clearDoneBtn = document.getElementById("clear-done");
 
 // Our tasks live here. Each task looks like:
-// { text: "Buy milk", done: false, due: "2026-10-05", addedAt: "...", doneAt: null }
-//   due     = the day it must be done by ("" if no due date)
-//   addedAt = the moment it was added   ("logged in")
-//   doneAt  = the moment it was ticked  ("logged out"), or null if not done yet
+// { text: "Buy milk", done: false, due: "2026-10-05", addedAt: "...", doneAt: null,
+//   notes: [{ text: "Get the full-fat one", done: false }], notesOpen: false }
+//   due       = the day it must be done by ("" if no due date)
+//   addedAt   = the moment it was added   ("logged in")
+//   doneAt    = the moment it was ticked  ("logged out"), or null if not done yet
+//   notes     = the numbered points (1, 2, 3...) for this task
+//   notesOpen = is the notes box folded out right now?
 // We load them from the browser's memory (localStorage) so they survive a refresh.
 let tasks = JSON.parse(localStorage.getItem("varun-dalle-tasks")) || [];
 
@@ -50,6 +53,100 @@ function formatMoment(isoString) {
   const moment = new Date(isoString);
   const time = moment.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
   return `${shortDay(moment)}, ${time}`;
+}
+
+// Which task's "Add a note" box should get the typing cursor after the next redraw
+let focusNotesOf = null;
+
+// Build the fold-out notes box for one task: numbered points you can tick, edit and delete
+function renderNotes(task) {
+  if (!task.notes) task.notes = []; // older tasks didn't have notes yet
+
+  const panel = document.createElement("div");
+  panel.className = "notes-panel";
+
+  // The numbered list. <ol> = "ordered list": the browser writes 1, 2, 3... for us
+  const ol = document.createElement("ol");
+  task.notes.forEach((note, noteIndex) => {
+    const item = document.createElement("li");
+    if (note.done) item.classList.add("note-done");
+
+    // Small tick box for this point
+    const tick = document.createElement("input");
+    tick.type = "checkbox";
+    tick.checked = note.done;
+    tick.addEventListener("change", () => {
+      note.done = tick.checked;
+      save();
+      render();
+    });
+
+    // The point's words. Double-click to edit them.
+    const words = document.createElement("span");
+    words.className = "note-text";
+    words.textContent = note.text;
+    words.title = "Double-click to edit";
+    words.addEventListener("dblclick", () => {
+      const editBox = document.createElement("input");
+      editBox.type = "text";
+      editBox.className = "note-edit";
+      editBox.value = note.text;
+      let finished = false;
+      const finish = (keep) => {
+        if (finished) return; // stop it running twice (Enter, then losing focus)
+        finished = true;
+        const newText = editBox.value.trim();
+        if (keep && newText !== "") note.text = newText; // empty? keep the old words
+        save();
+        render();
+      };
+      editBox.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") finish(true);
+        if (e.key === "Escape") finish(false); // Esc = cancel
+      });
+      editBox.addEventListener("blur", () => finish(true)); // clicking away also saves
+      words.replaceWith(editBox);
+      editBox.focus();
+      editBox.select();
+    });
+
+    // Small ✕ to delete this point. The numbers below move up by themselves.
+    const remove = document.createElement("button");
+    remove.className = "note-delete";
+    remove.textContent = "✕";
+    remove.addEventListener("click", () => {
+      task.notes.splice(noteIndex, 1);
+      save();
+      render();
+    });
+
+    item.append(tick, words, remove);
+    ol.appendChild(item);
+  });
+
+  // The "Add a note" box and + button
+  const addRow = document.createElement("form");
+  addRow.className = "note-add";
+  const addBox = document.createElement("input");
+  addBox.type = "text";
+  addBox.placeholder = "Add a note...";
+  addBox.dataset.taskIndex = tasks.indexOf(task); // a name tag, so we can find this box again later
+  const plus = document.createElement("button");
+  plus.type = "submit";
+  plus.textContent = "+";
+  addRow.addEventListener("submit", (e) => {
+    e.preventDefault(); // stop the page from reloading
+    const noteText = addBox.value.trim();
+    if (noteText === "") return;
+    task.notes.push({ text: noteText, done: false });
+    focusNotesOf = task; // keep typing more points straight away
+    save();
+    render();
+  });
+  addRow.append(addBox, plus);
+
+  panel.append(ol, addRow);
+  return panel;
 }
 
 // Draw all the tasks on the page
@@ -104,6 +201,19 @@ function render() {
     }
 
     body.append(text, info);
+    if (task.notesOpen) body.append(renderNotes(task));
+
+    // 📝 button: open / close this task's notes. Shows how many points it has.
+    const notesBtn = document.createElement("button");
+    notesBtn.className = "notes-btn";
+    notesBtn.textContent = `📝 ${(task.notes || []).length}`;
+    notesBtn.title = task.notesOpen ? "Hide notes" : "Show notes";
+    notesBtn.addEventListener("click", () => {
+      task.notesOpen = !task.notesOpen;
+      if (task.notesOpen) focusNotesOf = task; // jump straight into the "Add a note" box
+      save();
+      render();
+    });
 
     // ✕ button: delete this task
     const del = document.createElement("button");
@@ -115,9 +225,16 @@ function render() {
       render();
     });
 
-    li.append(checkbox, body, del);
+    li.append(checkbox, body, notesBtn, del);
     list.appendChild(li);
   });
+
+  // If we just opened notes or added a point, put the typing cursor back in that "Add a note" box
+  if (focusNotesOf) {
+    const box = list.querySelector(`[data-task-index="${tasks.indexOf(focusNotesOf)}"]`);
+    if (box) box.focus();
+    focusNotesOf = null;
+  }
 
   // Show how many tasks are left
   const left = tasks.filter((t) => !t.done).length;
@@ -148,6 +265,8 @@ form.addEventListener("submit", (event) => {
     due: dueInput.value, // "" if no date was picked
     addedAt: new Date().toISOString(), // the exact moment it was added
     doneAt: null,
+    notes: [],
+    notesOpen: false,
   });
   input.value = "";
   dueInput.value = "";
