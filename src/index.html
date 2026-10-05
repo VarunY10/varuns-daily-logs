@@ -12,8 +12,25 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Two cards side by side: the to-do list, and the focus timer -->
+  <!-- The page grid: left column (clock + to-do list), right column (focus timer) -->
   <div class="layout">
+  <div class="left-col">
+    <!-- Live clock: India time, top left (its "brain" is in clock.js) -->
+    <div class="live-clock" aria-label="Current time in India">
+      <div class="clock-top">
+        <span class="clock-live"><i></i>IST · Live</span>
+        <span id="clock-date">Mon, 5 Oct</span>
+      </div>
+      <div class="clock-time">
+        <span class="clock-hm"><span id="clock-h">12</span><span id="clock-colon" class="clock-colon">:</span><span id="clock-m">00</span></span>
+        <span class="clock-side">
+          <span id="clock-sec" class="clock-sec">00</span>
+          <span id="clock-ampm" class="clock-ampm">AM</span>
+        </span>
+      </div>
+      <div class="clock-bar"><span id="clock-bar-fill"></span></div>
+    </div>
+
   <main class="card">
     <!-- Top: title and today's date on the left, "3 left" bubble on the right -->
     <header class="card-header">
@@ -59,6 +76,7 @@
       <button id="clear-done" class="clear-btn" type="button">Clear done tasks</button>
     </div>
   </main>
+  </div>
 
   <!-- ===== The focus timer card (its "brain" is in timer.js) ===== -->
   <aside id="timer-card" class="card timer-card">
@@ -106,6 +124,7 @@
   <div id="toast" class="toast">Smashed it mate</div>
 
   <!-- Connect the "actions" files (keep these at the bottom, timer.js first) -->
+  <script src="clock.js"></script>
   <script src="timer.js"></script>
   <script src="script.js"></script>
 </body>

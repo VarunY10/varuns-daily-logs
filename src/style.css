@@ -21,9 +21,9 @@ body {
   margin: 0;
   min-height: 100vh;
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 60px 16px;
+  flex-direction: column; /* clock on top, then the cards */
+  align-items: center;
+  padding: 40px 24px;
   box-sizing: border-box;
   /* A see-through dark layer ON TOP of the photo, so the photo is calmer */
   background:
@@ -37,16 +37,19 @@ body {
 /* The two cards side by side: list on the left, timer on the right */
 .layout {
   width: 100%;
-  max-width: 904px;
   display: flex;
   gap: 24px;
-  justify-content: center;
+  justify-content: space-between; /* left column to the far left, timer to the far right */
   align-items: flex-start;
 }
 
-.layout > main.card {
-  flex: 1 1 auto;
+/* Left column: the clock on top, the to-do list underneath, 24px apart */
+.left-col {
+  flex: 0 1 540px; /* 540px wide, but allowed to shrink a little on smaller screens */
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 /* The frosted-glass card in the middle */
@@ -62,6 +65,10 @@ body {
   backdrop-filter: blur(20px) saturate(140%);
   -webkit-backdrop-filter: blur(20px) saturate(140%); /* the same thing, for Safari */
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  /* Give each glass card its own drawing layer, so a change in one card
+     (or the ticking clock) can't make another card flicker */
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 /* ---------- Top: title, date and the "3 left" bubble ---------- */
@@ -566,13 +573,146 @@ input[type="checkbox"]:checked::after {
 }
 
 /* ============================================================
+   LIVE CLOCK (India time, top left)
+   ============================================================ */
+
+.live-clock {
+  box-sizing: border-box; /* as wide as the to-do list below it */
+  padding: 14px 18px 14px;
+  border-radius: 18px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  user-select: none;
+  transform: translateZ(0); /* its own drawing layer too (see .card) */
+  backface-visibility: hidden;
+}
+
+/* Top line: "● IST · LIVE" on the left, the date on the right */
+.clock-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-soft);
+}
+
+.clock-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* The little glowing "live" dot that breathes in and out */
+.clock-live i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--pink);
+  box-shadow: 0 0 8px var(--pink);
+  animation: breathe 2s ease-in-out infinite;
+}
+
+/* Only fade it (opacity): fading is free for the graphics chip, animating the glow is not */
+@keyframes breathe {
+  50% { opacity: 0.3; }
+}
+
+.clock-time {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+/* The big HH:MM, white fading into soft pink */
+.clock-hm {
+  font-size: 48px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -1.5px;
+  font-variant-numeric: tabular-nums; /* every digit the same width, so nothing wobbles */
+  background: linear-gradient(180deg, #ffffff 30%, #ffc2e0);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent; /* lets the gradient show through the letters */
+}
+
+.clock-colon {
+  display: inline-block;
+  color: #ffe3f1; /* its own colour: the gradient above doesn't reach into this little box */
+  margin: 0 1px;
+  transform: translateY(-3px);
+  transition: opacity 0.2s;
+}
+
+.clock-colon.dim {
+  opacity: 0.25;
+}
+
+/* Seconds stacked on top of AM/PM, to the right */
+.clock-side {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.clock-sec {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--pink);
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 12px var(--pink-glow);
+}
+
+.clock-ampm {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text-soft);
+}
+
+/* The thin bar that fills up across each minute */
+.clock-bar {
+  height: 3px;
+  margin-top: 12px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+#clock-bar-fill {
+  display: block;
+  height: 100%;
+  width: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--pink), #ff9fd0);
+  box-shadow: 0 0 8px var(--pink);
+  /* We STRETCH the bar (transform) instead of changing its width.
+     Stretching is done by the graphics chip without redrawing the page, so nothing flickers. */
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform 1s linear; /* glides smoothly from second to second */
+}
+
+#clock-bar-fill.reset {
+  transition: none; /* jump straight back to empty at :00 */
+}
+
+/* ============================================================
    FOCUS TIMER CARD
    ============================================================ */
 
 .timer-card {
-  flex: 0 0 340px;
+  flex: 0 0 300px; /* a bit smaller than before (was 340px) */
+  padding: 24px;
   position: sticky; /* stays in view while you scroll a long list */
-  top: 24px;
+  top: 40px; /* same as the page's top padding, so it lines up with the clock */
 }
 
 .timer-card h2 {
@@ -602,7 +742,7 @@ input[type="checkbox"]:checked::after {
   display: flex;
   gap: 4px;
   height: 170px; /* 5 rows of 34px */
-  margin: 16px 0 4px;
+  margin: 12px 0 4px;
 }
 
 /* The see-through bar behind the middle row, like Apple's */
@@ -646,7 +786,7 @@ input[type="checkbox"]:checked::after {
   scroll-snap-align: center;
   text-align: right;
   padding-right: 50%;
-  font-size: 20px;
+  font-size: 18px;
   font-variant-numeric: tabular-nums;
   color: var(--text-faint);
   cursor: pointer;
@@ -664,7 +804,7 @@ input[type="checkbox"]:checked::after {
   top: 68px;
   left: 56%;
   line-height: 34px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   pointer-events: none;
 }
@@ -673,8 +813,8 @@ input[type="checkbox"]:checked::after {
 
 .ring-wrap {
   position: relative;
-  width: 220px;
-  height: 220px;
+  width: 190px;
+  height: 190px;
   margin: 12px auto 0;
 }
 
@@ -711,7 +851,7 @@ input[type="checkbox"]:checked::after {
 }
 
 .timer-time {
-  font-size: 46px;
+  font-size: 40px;
   font-weight: 500;
   letter-spacing: -1px;
   font-variant-numeric: tabular-nums; /* digits don't wobble as they change */
@@ -747,10 +887,10 @@ input[type="checkbox"]:checked::after {
 }
 
 .round-btn {
-  width: 76px;
-  height: 76px;
+  width: 66px;
+  height: 66px;
   border-radius: 50%;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
 }
 
@@ -857,7 +997,7 @@ input[type="checkbox"]:checked::after {
     align-items: center;
   }
 
-  .layout > main.card,
+  .left-col,
   .timer-card {
     flex: none;
     width: 100%;
@@ -894,7 +1034,7 @@ input[type="checkbox"]:checked::after {
 
 @media (max-width: 480px) {
   body {
-    padding-top: 24px;
+    padding: 24px 16px; /* a little less space around the edges on phones */
   }
 
   .card {

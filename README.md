@@ -37,6 +37,11 @@ Click **📝** on a task to open its numbered notes (1, 2, 3…):
 - **Edit** a point: double-click it, then press Enter to save or Esc to cancel
 - **Delete** a point with its small **✕**
 
+### Live clock 🕐
+A glass clock at the top left always shows the current **India time (IST)**, even if your computer is set to another country.
+Big digits with a blinking colon, pink seconds, the date, and a thin bar that fills up across each minute.
+It sits above the to-do list, lined up with it; the timer card sits to the right of both (on phones everything stacks).
+
 ### Focus timer ⏱️
 A second card with a timer that works like the Timer in Apple's Clock app:
 - **Scroll the wheels** to pick hours, minutes and seconds, then press **Start**
@@ -68,6 +73,7 @@ VC1/
     ├── style.css      ← the clothes: colours, layout, the glass look
     ├── script.js      ← the brain: adding, ticking, notes, sorting, saving
     ├── timer.js       ← the timer's brain: wheels, countdown, focus tracking
+    ├── clock.js       ← the live India-time clock
     └── assets/
         └── jet.png    ← background photo
 ```

@@ -7,6 +7,7 @@ A to-do list webpage called "Varun's Daily Logs" (originally named "Varun Dalle"
 - `src/index.html`: page structure (header, two-row add form, list, toast)
 - `src/style.css`: frosted-glass look; colours live in CSS variables under `:root`
 - `src/script.js`: task behaviour. `render()` rebuilds the whole list from `tasks` on every change.
+- `src/clock.js`: the live IST clock (uses Intl with timeZone "Asia/Kolkata"); fully independent of the other files.
 - `src/timer.js`: the focus timer. Loaded BEFORE script.js; script.js calls `initTimer()` at its end.
   Both files share globals (`tasks`, `save`, `render`, `timer`, `showToast`...), so only use them inside functions.
 - `src/assets/jet.png`: background photo
