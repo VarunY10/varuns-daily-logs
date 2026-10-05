@@ -24,6 +24,7 @@ const todayLabel = document.getElementById("today");
 //   notesOpen = is the notes box folded out right now?
 //   id           = a unique name tag, so the timer can find this task again
 //   focusSeconds = total time spent focusing on it with the timer
+//   number       = its ticket number ("Task 7"), given when it's created and never changed
 // We load them from the browser's memory (localStorage) so they survive a refresh.
 // (The label "varun-dalle-tasks" is from the app's old name. Keep it! Changing it would lose all saved tasks.)
 let tasks = JSON.parse(localStorage.getItem("varun-dalle-tasks")) || [];
@@ -37,6 +38,18 @@ function makeId() {
 tasks.forEach((task) => {
   if (!task.id) task.id = makeId();
 });
+
+// Ticket numbers: the next new task gets this number. It only ever goes UP,
+// so a deleted task's number is never reused (just like ticket numbers at a counter).
+const NUMBER_KEY = "varun-daily-logs-next-task-number";
+const highestNumber = Math.max(0, ...tasks.map((t) => t.number || 0));
+let nextTaskNumber = Math.max(Number(localStorage.getItem(NUMBER_KEY)) || 1, highestNumber + 1);
+
+// Older tasks don't have a number yet: number them in the order they were added
+tasks.forEach((task) => {
+  if (!task.number) task.number = nextTaskNumber++;
+});
+localStorage.setItem(NUMBER_KEY, nextTaskNumber);
 
 // Save tasks into the browser's memory
 function save() {
@@ -231,6 +244,11 @@ function render() {
     const body = document.createElement("div");
     body.className = "task-body";
 
+    // Small "TASK 3" label above the task's words
+    const number = document.createElement("span");
+    number.className = "task-number";
+    number.textContent = `Task ${task.number}`;
+
     const text = document.createElement("span");
     text.className = "task-text";
     text.textContent = task.text;
@@ -263,7 +281,7 @@ function render() {
       info.append(focused);
     }
 
-    body.append(text, info);
+    body.append(number, text, info);
 
     // ⏱️ button: start the focus timer for this task
     const focusBtn = document.createElement("button");
@@ -374,7 +392,10 @@ form.addEventListener("submit", (event) => {
     notesOpen: false,
     id: makeId(),
     focusSeconds: 0,
+    number: nextTaskNumber, // this task's ticket number...
   });
+  nextTaskNumber++; // ...and the next task gets the next one
+  localStorage.setItem(NUMBER_KEY, nextTaskNumber);
   input.value = "";
   dueInput.value = "";
   slotStartInput.value = "";

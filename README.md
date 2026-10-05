@@ -13,6 +13,7 @@ To see changes after editing the code, do a **hard refresh** with Cmd + Shift + 
 
 ### Tasks
 - **Add** a task by typing it and pressing **Add** (or Enter)
+- Every task gets a **ticket number** (`TASK 1`, `TASK 2`…) when it's created. It never changes, and a deleted task's number is never reused.
 - **Tick** a task off with its round checkbox. A **"Smashed it mate"** message flies down the screen ✈️
 - **Delete** a task with **✕**
 - **Clear done tasks** removes every ticked task at once
