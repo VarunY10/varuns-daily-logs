@@ -8,6 +8,7 @@ const list = document.getElementById("task-list");
 const counter = document.getElementById("counter");
 const toast = document.getElementById("toast");
 const clearDoneBtn = document.getElementById("clear-done");
+const backupBtn = document.getElementById("backup-btn");
 const emptyState = document.getElementById("empty-state");
 const todayLabel = document.getElementById("today");
 
@@ -358,6 +359,9 @@ function render() {
 
   // Only show the Clear button when there's at least one done task to clear
   clearDoneBtn.hidden = !tasks.some((t) => t.done);
+
+  // Nothing to back up yet? Then the Backup button is greyed out
+  backupBtn.disabled = tasks.length === 0;
 }
 
 // Clear done tasks: keep only the tasks that are NOT done
@@ -365,6 +369,31 @@ clearDoneBtn.addEventListener("click", () => {
   tasks = tasks.filter((t) => !t.done);
   save();
   render();
+});
+
+// Backup: save all your tasks into a file on your computer
+backupBtn.addEventListener("click", () => {
+  const backup = {
+    app: "Varun's Daily Logs",
+    savedAt: new Date().toISOString(),
+    nextTaskNumber: nextTaskNumber, // so ticket numbers carry on correctly if you ever restore
+    tasks: tasks,
+  };
+
+  // Turn the backup into neat, readable text, and wrap it up as a file
+  const text = JSON.stringify(backup, null, 2);
+  const file = new Blob([text], { type: "application/json" });
+
+  // Make an invisible download link, click it, then tidy up
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(file);
+  link.download = `varuns-daily-logs-backup-${todayString()}.json`; // e.g. ...-2026-10-05.json
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000); // wait a moment (Safari needs it), then free the memory
+
+  showToast("Backup saved 💾");
 });
 
 // When you press Add (or Enter), add a new task

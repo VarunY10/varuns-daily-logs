@@ -568,8 +568,15 @@ input[type="checkbox"]:checked::after {
 
 .list-footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between; /* Backup on the left, Clear done on the right */
+  gap: 8px;
   margin-top: 16px;
+}
+
+/* If Clear done is hidden, keep Backup on the left */
+.list-footer .clear-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
 }
 
 /* ============================================================

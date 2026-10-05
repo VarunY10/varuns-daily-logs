@@ -17,6 +17,7 @@ To see changes after editing the code, do a **hard refresh** with Cmd + Shift + 
 - **Tick** a task off with its round checkbox. A **"Smashed it mate"** message flies down the screen ✈️
 - **Delete** a task with **✕**
 - **Clear done tasks** removes every ticked task at once
+- **⬇️ Backup** downloads all your tasks (with notes, slots, times and focus minutes) as a file like `varuns-daily-logs-backup-2026-10-05.json`
 - The bubble at the top shows how many tasks are left, or "All done 🎉"
 
 ### Dates and times
@@ -60,7 +61,7 @@ A second card with a timer that works like the Timer in Apple's Clock app:
 Tasks are saved in your **browser's own storage** (`localStorage`), so they survive refreshes and restarts. Keep in mind:
 - They live in **one browser** on **one computer**. Chrome and Safari each keep their own list.
 - Always open the page **the same way** (the same file address). A different address starts an empty list.
-- **Clearing your browser's history or site data deletes your tasks.**
+- **Clearing your browser's history or site data deletes your tasks.** Use **⬇️ Backup** regularly to keep a copy.
 
 ## Project files
 
